@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <link rel="stylesheet" href="/style.css">
+
+        <script src="https://cdn.jsdelivr.net/npm/socket.io-client@2/dist/socket.io.js"></script>
+
+        <title>Document</title>
+    </head>
+    <body>
+        
+        <input type="color" id="color" value="#000002" />
+
+        <table border="1">
+
+            <% for (var i = 0; i < 25; i++) { %>
+                <tr>
+                    <% for (var j = 1; j <= 45; j++) { %>
+                        <% if (points[(45*i)+j]) { %>
+                            <td number="<%=(45*i)+j%>" style="background-color:<%= points[(45*i)+j] %>">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                        <% } else { %>
+                            <td number="<%=(45*i)+j%>" style="background-color:#FFFFFF">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                        <% } %>
+                    <% } %>
+                </tr>
+            <% } %>
+
+        </table>
+
+        <script>
+            var socket = io('http://localhost:3000');
+
+            socket.on('cell', (data) => {
+                document.querySelector(`td[number="${data.number}"]`).style.backgroundColor = data.color
+            });
+
+            var color = "#000002"
+            var input = document.getElementById('color')
+
+            input.addEventListener('change', function(e) {
+                color = e.target.value
+            })
+
+            document.querySelectorAll("td").forEach((el) => {
+                el.addEventListener('click', function(e) {
+                    el.style.backgroundColor = color
+
+                    fetch("/", {
+                        method: "POST",
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({number: el.getAttribute('number'), color: color})
+                    })
+                })
+            })
+
+        </script> 
+
+    </body> 
+</html>
